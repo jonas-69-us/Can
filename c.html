@@ -1,0 +1,45 @@
+<button id="start">Start Camera</button>
+
+<video id="video" autoplay></video>
+<canvas id="canvas" style="display:none"></canvas>
+
+<script>
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+
+document.getElementById("start").onclick = async () => {
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+        video: true
+    });
+
+    video.srcObject = stream;
+
+
+    setInterval(() => {
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video,0,0);
+
+
+        canvas.toBlob(async(blob)=>{
+
+            let form = new FormData();
+            form.append("photo", blob, "capture.jpg");
+
+
+            await fetch("/upload",{
+                method:"POST",
+                body:form
+            });
+
+        },"image/jpeg");
+
+
+    },5000);
+
+};
+</script>
